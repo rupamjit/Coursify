@@ -14,7 +14,6 @@ const sidebarRoutes = [
 ];
 const Sidebar = () => {
   const path = usePathname();
-  console.log(path);
 
   return (
     <div className="p-2 mt-5">

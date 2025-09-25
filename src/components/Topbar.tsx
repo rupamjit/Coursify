@@ -13,7 +13,7 @@ const topBarRoutes = [
 
 const Topbar = () => {
   const { isSignedIn } = useAuth();
-
+  
   return (
     <div className="flex justify-between items-center p-2 mx-4">
       <Link className="cursor-pointer" href={"/"}>
