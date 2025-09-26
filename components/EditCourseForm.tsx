@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import { Label } from "./ui/label";
@@ -22,8 +21,8 @@ import { Prisma } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { useUploadThing } from "../lib/uploadthing";
 import UploadFile from "./customComponent/UploadFile";
+import { useRouter } from "next/navigation";
 
 export type CourseWithRelations = Prisma.CourseGetPayload<{
   include: {
@@ -46,14 +45,6 @@ interface EditCourseFormProps {
   categories: CategoryWithSubCategories[];
   levels: Level[];
 }
-interface FileDetails {
-  key: string;
-  name: string;
-  size: number;
-  type: string;
-  ufsUrl: string;
-}
-
 
 const formSchema = z.object({
   title: z.string().trim().min(2, { message: "Title is required" }),
@@ -80,6 +71,7 @@ const EditCourseForm = ({
   >([]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   //   console.log(course);
   //   console.log(categories);
@@ -108,10 +100,20 @@ const EditCourseForm = ({
   }, [categories, category, course?.categoryId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    try {
+      setIsLoading(true)
+      const response = await axios.patch(`/api/course/${course?.id}`,values)
+      // console.log(response.data)
+      toast("Course Updated");
+      router.refresh();
+
+    } catch (error) {
+      console.log("Error in EditCourseForm",error)
+      toast("Something went wrong!!!",{duration:3000,position:"top-center"})
+    }finally{
+      setIsLoading(false)
+    }
   }
-
-
 
   return (
     <Form {...form}>
