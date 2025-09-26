@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { Edit, Edit2 } from 'lucide-react'
+import { Edit } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 

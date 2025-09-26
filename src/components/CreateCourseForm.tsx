@@ -10,17 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "./ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod/v3";
+import { z } from "zod";
+import axios from "axios";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface CategoryProps {
   category: {
@@ -35,9 +32,15 @@ interface CategoryProps {
 }
 
 const formSchema = z.object({
-  title: z.string(),
-  subCategory: z.string(),
-  category: z.string(),
+  title: z.string().min(2, {
+    message: "Title is required and minimum 2 characters",
+  }),
+  categoryId: z.string().min(1, {
+    message: "Category is required",
+  }),
+  subCategoryId: z.string().min(1, {
+    message: "Subcategory is required",
+  }),
 });
 
 const CreateCourseForm = ({ category }: CategoryProps) => {
@@ -45,25 +48,44 @@ const CreateCourseForm = ({ category }: CategoryProps) => {
   const [subCategory, setSubCategory] = useState<
     { id: string; categoryId: string; name: string }[]
   >([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      subCategory: "",
-      category: "",
+      subCategoryId: "",
+      categoryId: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      setIsLoading(true);
+      const response = await axios.post("/api/course", values);
+      if (response.status == 200) {
+        router.push(`/instructor/courses/${response.data.id}/basic`);
+        toast("New Course Created Succesfully", {
+          duration: 3000,
+          position: "top-center",
+        });
+      }
+    } catch (err) {
+      console.log("Failed to create new course", err);
+      toast("Internal Server Error", {
+        duration: 3000,
+        position: "top-center",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   useEffect(() => {
     if (categories) {
-      const selectedCategory = category.find(
-        (item) => item.name === categories
-      );
+      const selectedCategory = category.find((item) => item.id === categories);
       setSubCategory(selectedCategory?.subCategories || []);
     }
   }, [categories, category]);
@@ -103,7 +125,7 @@ const CreateCourseForm = ({ category }: CategoryProps) => {
 
           <FormField
             control={form.control}
-            name="category"
+            name="categoryId"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -120,8 +142,8 @@ const CreateCourseForm = ({ category }: CategoryProps) => {
                           <SelectValue placeholder="Select Category..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {category.map((item) => (
-                            <SelectItem key={item.name} value={item.name}>
+                          {category.map((item, _idx) => (
+                            <SelectItem key={_idx} value={item.id}>
                               {item.name}
                             </SelectItem>
                           ))}
@@ -137,7 +159,7 @@ const CreateCourseForm = ({ category }: CategoryProps) => {
 
           <FormField
             control={form.control}
-            name="subCategory"
+            name="subCategoryId"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
@@ -149,8 +171,8 @@ const CreateCourseForm = ({ category }: CategoryProps) => {
                       </SelectTrigger>
                       <SelectContent>
                         {subCategory.length > 0 ? (
-                          subCategory.map((item) => (
-                            <SelectItem key={item.name} value={item.name}>
+                          subCategory.map((item, _idx) => (
+                            <SelectItem key={_idx} value={item.id}>
                               {item.name}
                             </SelectItem>
                           ))
@@ -167,8 +189,13 @@ const CreateCourseForm = ({ category }: CategoryProps) => {
               </FormItem>
             )}
           />
-
-          <Button type="submit">Create</Button>
+          <Button variant="primary" type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <Loader2 className="text-white animate-spin h-7 w-7" />
+            ) : (
+              "Create"
+            )}
+          </Button>
         </div>
       </form>
     </Form>

@@ -11,7 +11,7 @@ const page = async () => {
       subCategories: true,
     },
   });
-  console.log(category);
+  // console.log(category);
 
   return (
     <div>
