@@ -22,7 +22,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import UploadFile from "./customComponent/UploadFile";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export type CourseWithRelations = Prisma.CourseGetPayload<{
   include: {
@@ -72,6 +72,7 @@ const EditCourseForm = ({
 
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   //   console.log(course);
   //   console.log(categories);
@@ -101,264 +102,285 @@ const EditCourseForm = ({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      setIsLoading(true)
-      const response = await axios.patch(`/api/course/${course?.id}`,values)
+      setIsLoading(true);
+      const response = await axios.patch(`/api/course/${course?.id}`, values);
       // console.log(response.data)
-      toast("Course Updated");
+      toast("Course Updated", { position: "top-center" });
       router.refresh();
-
     } catch (error) {
-      console.log("Error in EditCourseForm",error)
-      toast("Something went wrong!!!",{duration:3000,position:"top-center"})
-    }finally{
-      setIsLoading(false)
+      console.log("Error in EditCourseForm", error);
+      toast("Something went wrong!!!", {
+        duration: 3000,
+        position: "top-center",
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
+  const routes = [
+    {
+      label: "Basic Information",
+      path: `/instructor/courses/${course?.id}/basic`,
+    },
+    { label: "Curriculum", path: `/instructor/courses/${course?.id}/sections` },
+  ];
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="space-y-5">
-          <div className="mb-6">
-            <p className="text-2xl font-extrabold text-gray-900">
-              Some Basic Information About Your Course
-            </p>
-            <p className="text-sm text-gray-500 mt-1">
-              Please fill in the details. You can change the details later.
-            </p>
-          </div>
-
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="space-y-2">
-                    <Label className="font-semibold">Title</Label>
-                    <Input
-                      {...field}
-                      className="mt-2 w-5xl"
-                      placeholder="Ex. Web Development"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="subtitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="space-y-2">
-                    <Label className="font-semibold">SubTitle</Label>
-                    <Input
-                      {...field}
-                      className="mt-2 w-5xl"
-                      placeholder="Ex. Become a Full Stack Developer"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="space-y-2">
-                    <Label className="font-semibold">Description</Label>
-                    <RichTextEditor
-                      {...field}
-                      placeholder="Description About this course"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex gap-6">
-            <FormField
-              control={form.control}
-              name="categoryId"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <div className="space-y-2">
-                      <Label className="font-semibold">Category</Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setCategory(value);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Category..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((item, _idx) => (
-                            <SelectItem key={_idx} value={item.id}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="subCategoryId"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <div className="space-y-2">
-                      <Label className="font-semibold">SubCategory</Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select SubCategory..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {subCategory.map((item, _idx) => (
-                            <SelectItem key={_idx} value={item.id}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="levelId"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <div className="space-y-2">
-                      <Label className="font-semibold">Level</Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Level..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {levels.map((item, _idx) => (
-                            <SelectItem key={_idx} value={item.id}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormControl>
-                  <div className="space-y-2">
-                    <Label className="font-semibold">Course Banner</Label>
-                    <UploadFile
-                      value={field.value || ""}
-                      page="Edit Course"
-                      endpoint="courseBanner"
-                      onChange={(url) => {
-                        // Fixed: properly handle the optional url parameter
-                        if (url) {
-                          field.onChange(url);
-                        }
-                      }}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="space-y-2">
-                    <Label className="font-semibold">Price (USD)</Label>
-                    <Input
-                      {...field}
-                      step="0.01"
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value))
-                      }
-                      type="number"
-                      className="mt-2 w-5xl"
-                      placeholder="199.99"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex gap-5">
-            <Link href="/instructor/courses">
-              <Button variant="outline" type="button">
-                Cancel
-              </Button>
-            </Link>
-            <Button
-              className="cursor-pointer"
-              variant="primary"
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="text-white animate-spin h-7 w-7" />
-              ) : (
-                "Save"
-              )}
+    <div className="">
+      <div className="flex gap-5 py-2">
+        {routes.map((route) => (
+          <Link key={route.path} href={route.path}>
+            <Button className="cursor-pointer" variant={pathname === route.path ? "primary" : "outline"}>
+              {route.label}
             </Button>
+          </Link>
+        ))}
+      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <div className="space-y-5">
+            <div className="mb-6">
+              <p className="text-2xl font-extrabold text-gray-900">
+                Some Basic Information About Your Course
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Please fill in the details. You can change the details later.
+              </p>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Title</Label>
+                      <Input
+                        {...field}
+                        className="mt-2 w-5xl"
+                        placeholder="Ex. Web Development"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subtitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">SubTitle</Label>
+                      <Input
+                        {...field}
+                        className="mt-2 w-5xl"
+                        placeholder="Ex. Become a Full Stack Developer"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Description</Label>
+                      <RichTextEditor
+                        {...field}
+                        placeholder="Description About this course"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-6">
+              <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormControl>
+                      <div className="space-y-2">
+                        <Label className="font-semibold">Category</Label>
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            setCategory(value);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Category..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((item, _idx) => (
+                              <SelectItem key={_idx} value={item.id}>
+                                {item.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="subCategoryId"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormControl>
+                      <div className="space-y-2">
+                        <Label className="font-semibold">SubCategory</Label>
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select SubCategory..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {subCategory.map((item, _idx) => (
+                              <SelectItem key={_idx} value={item.id}>
+                                {item.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="levelId"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormControl>
+                      <div className="space-y-2">
+                        <Label className="font-semibold">Level</Label>
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Level..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {levels.map((item, _idx) => (
+                              <SelectItem key={_idx} value={item.id}>
+                                {item.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Course Banner</Label>
+                      <UploadFile
+                        value={field.value || ""}
+                        page="Edit Course"
+                        endpoint="courseBanner"
+                        onChange={(url) => {
+                          // Fixed: properly handle the optional url parameter
+                          if (url) {
+                            field.onChange(url);
+                          }
+                        }}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="space-y-2">
+                      <Label className="font-semibold">Price (USD)</Label>
+                      <Input
+                        {...field}
+                        step="0.01"
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value))
+                        }
+                        type="number"
+                        className="mt-2 w-5xl"
+                        placeholder="199.99"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-5">
+              <Link href="/instructor/courses">
+                <Button variant="outline" type="button">
+                  Cancel
+                </Button>
+              </Link>
+              <Button
+                className="cursor-pointer"
+                variant="primary"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="text-white animate-spin h-7 w-7" />
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </div>
   );
 };
 
