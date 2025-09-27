@@ -3,7 +3,7 @@ import CreateSection from "@/../components/sectionComponent/CreateSection";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/../lib/db";
-// ../../../../..
+
 
 const page = async ({ params }: { params: { courseId: string } }) => {
   const { userId } = await auth();

@@ -19,6 +19,7 @@ import z from "zod";
 import axios from "axios";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import SectionList from "./SectionList";
 
 interface CreateSectionProps {
   course: Course & { sections: Section[] };
@@ -72,6 +73,18 @@ const CreateSection = ({ course }: CreateSectionProps) => {
     }
   }
 
+   const onReorder = async (updateData: { id: string; position: number }[]) => {
+    try {
+      await axios.put(`/api/course/${course.id}/sections/reorder`, {
+        list: updateData,
+      });
+      toast("Sections reordered successfully");
+    } catch (err) {
+      console.log("Failed to reorder sections", err);
+      toast("Something went wrong!");
+    }
+  };
+
   return (
     <div>
       <div className="flex gap-5 py-2">
@@ -87,7 +100,15 @@ const CreateSection = ({ course }: CreateSectionProps) => {
         ))}
       </div>
 
-      {/* TODO: Add Previous Section list */}
+    
+
+      <SectionList
+        items={course.sections || []}
+        onReorder={onReorder}
+        onEdit={(id) =>
+          router.push(`/instructor/courses/${course.id}/sections/${id}`)
+        }
+      />
 
       <h1 className="font-extrabold text-xl mt-4  p-2">Add New Section</h1>
       <div className="p-2 mt-2">
