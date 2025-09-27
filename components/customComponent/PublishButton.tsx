@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 import { toast } from "sonner";
 
 interface PublishButtonProps {
-  disabled: boolean;
+  disabled?: boolean;
   courseId: string;
   sectionId?: string;
   isPublished: boolean;
@@ -26,28 +26,26 @@ const PublishButton = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const onClick = async () => {
-    let url = `api/course/${courseId}`;
-    if (page == "Section") {
-      url = url + `/sections/${sectionId}`;
-    }
-    try {
-      setIsLoading(true);
-      if (isPublished) {
-        await axios.post(`${url}/unpublish`);
-      } else {
-        await axios.post(`${url}/publish`);
-      }
+  try {
+    setIsLoading(true);
 
-      toast.success(`${page} ${isPublished ? "unpublished" : "published"}`);
-      router.refresh();
-    } catch (error) {
-      toast("Internal Server Error!");
-      console.log(
-        `Failed to ${isPublished ? "unpublish" : "publish"} ${page}`,
-        error
-      );
-    }
-  };
+    const url =
+      page === "Section"
+        ? `/api/course/${courseId}/sections/${sectionId}/${isPublished ? "unpublish" : "publish"}`
+        : `/api/course/${courseId}/${isPublished ? "unpublish" : "publish"}`;
+
+    await axios.post(url);
+
+    toast(`${page} ${isPublished ? "unpublished" : "published"}`);
+    router.refresh();
+  } catch (err) {
+    console.log(`Failed to ${isPublished ? "unpublish" : "publish"} ${page}`, err);
+    toast("Internal Server Error!");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <Button

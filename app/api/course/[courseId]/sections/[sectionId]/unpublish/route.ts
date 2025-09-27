@@ -1,3 +1,4 @@
+
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/../lib/db";
@@ -15,7 +16,7 @@ export const POST = async (
 
     const { courseId, sectionId } = params;
 
-    const course = await db.course.findFirst({
+    const course = await db.course.findUnique({
       where: {
         id: courseId,
         instructorId: userId,
@@ -26,42 +27,38 @@ export const POST = async (
       return new NextResponse("Course Not Found", { status: 404 });
     }
 
-    const section = await db.section.findFirst({
-      where: {
-        id: sectionId,
-        courseId:courseId,
-      },
-    });
-
-    const muxData = await db.muxData.findFirst({
-      where: {
-        sectionId,
-      },
-    });
-
-    if (
-      !section ||
-      !muxData ||
-      !section.title ||
-      !section.description ||
-      !section.videoUrl
-    ) {
-      return new NextResponse("Missing required fields", { status: 400 });
-    }
-
-    const publishedSection = await db.section.update({
+    const unpublishedSection = await db.section.update({
       where: {
         id: sectionId,
         courseId,
       },
       data: {
+        isPublished: false,
+      },
+    });
+
+    const publishedSectionsInCourse = await db.section.findMany({
+      where: {
+        courseId,
         isPublished: true,
       },
     });
 
-    return NextResponse.json(publishedSection, { status: 200 });
+    if (publishedSectionsInCourse.length === 0) {
+      await db.course.update({
+        where: {
+          id: courseId,
+          instructorId: userId,
+        },
+        data: {
+          isPublished: false,
+        },
+      });
+    }
+
+    return NextResponse.json(unpublishedSection, { status: 200 });
   } catch (err) {
-    console.log("Error in publishing section", err);
+    console.log("Error in unpublishing section", err);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-};
+}

@@ -4,7 +4,7 @@ import { MuxData, Resource, Section } from "@prisma/client";
 import React, { useState } from "react";
 import z from "zod";
 import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -25,6 +25,9 @@ import ResourceForm from "./ResourceForm";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import PublishButton from "../customComponent/PublishButton";
+import Link from "next/link";
+import DeleteButton from "../customComponent/DeleteButton";
 
 interface EditSectionProps {
   section:
@@ -74,6 +77,25 @@ const EditSectionForm = ({ section }: EditSectionProps) => {
   };
   return (
     <div className="space-y-6 ">
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between mb-7">
+        <Link href={`/instructor/courses/${section?.courseId}/sections`}>
+          <Button variant="outline" className="text-sm font-medium">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to curriculum
+          </Button>
+        </Link>
+
+        <div className="flex gap-5 items-start">
+          <PublishButton
+            courseId={section?.courseId || ""}
+            sectionId={section?.id}
+            isPublished={section?.isPublished|| false}
+            page="Section"
+          />
+          <DeleteButton item="section" courseId={section?.courseId|| ""} sectionId={section?.id} />
+        </div>
+      </div>
       <div>
         <h1 className="text-2xl font-bold">Section Details</h1>
         <p className="text-sm text-muted-foreground mt-1">

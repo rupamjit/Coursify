@@ -93,7 +93,7 @@ const ResourceForm = ({ section }: ResourceFormProps) => {
         {section.resources.map((resource) => (
           <div
             key={resource.id}
-            className="flex justify-between bg-[#FFF8EB] rounded-lg text-sm font-medium p-3"
+            className="flex justify-between bg-[#b2cef0] rounded-lg text-sm font-medium p-3"
           >
             <div className="flex items-center">
               <File className="h-4 w-4 mr-4" />

@@ -14,9 +14,9 @@ export const POST = async (
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const { courseId, sectionId } = await params;
+    const { courseId, sectionId } =  params;
 
-    const course = await db.course.findUnique({
+    const course = await db.course.findFirst({
       where: {
         id: courseId,
         instructorId: userId,
@@ -27,7 +27,7 @@ export const POST = async (
       return new NextResponse("Course Not Found", { status: 404 });
     }
 
-    const section = await db.section.findUnique({
+    const section = await db.section.findFirst({
       where: {
         id: sectionId,
         courseId,
