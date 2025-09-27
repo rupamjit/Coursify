@@ -1,8 +1,8 @@
 import EditCourseForm, {
   CategoryWithSubCategories,
   CourseWithRelations,
-} from "../../../../../../components/EditCourseForm";
-import { db } from "../../../../../../lib/db";
+} from "@/../components/EditCourseForm";
+import { db } from "@/../lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { Level } from "@prisma/client";
 import { redirect } from "next/navigation";

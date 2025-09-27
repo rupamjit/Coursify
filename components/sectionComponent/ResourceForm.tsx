@@ -1,17 +1,24 @@
-"use client"
-import { File, Loader2, PlusCircle, X } from 'lucide-react'
-import React, { useState } from 'react'
-import { Button } from '../ui/button'
-import UploadFile from '../customComponent/UploadFile'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { Resource, Section } from '@prisma/client'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Input } from '../ui/input'
-
-
+"use client";
+import { File, Loader2, PlusCircle, X } from "lucide-react";
+import React, { useState } from "react";
+import { Button } from "../ui/button";
+import UploadFile from "../customComponent/UploadFile";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Resource, Section } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "../ui/input";
+import axios from "axios";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -26,14 +33,12 @@ interface ResourceFormProps {
   section: Section & { resources: Resource[] };
 }
 const ResourceForm = ({ section }: ResourceFormProps) => {
+  // console.log(section);
 
-  console.log(section)
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [isLoading,setIsLoading] = useState(false)
+  const router = useRouter();
 
-const router = useRouter();
-
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,13 +48,39 @@ const router = useRouter();
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values)
+    setIsLoading(true);
+    try {
+      await axios.post(
+        `/api/course/${section.courseId}/sections/${section.id}/resources`,
+        values
+      );
+      form.reset();
+      router.refresh();
+      toast("Resource uploaded succesfully");
+    } catch (error) {
+      console.log(error);
+      toast("Internal Server Error!!!");
+    } finally {
+      setIsLoading(false);
+    }
   };
-   
+
+  const handleDelete = async (id: string) => {
+    try {
+      await axios.delete(
+        `/api/course/${section.courseId}/sections/${section.id}/resources/${id}`
+      );
+      toast("Resource deleted!");
+      router.refresh();
+    } catch (err) {
+      toast("Something went wrong!");
+      console.log("Failed to delete resource", err);
+    }
+  };
 
   return (
     <div>
-         <div className="flex gap-2 items-center text-xl font-bold mt-12">
+      <div className="flex gap-2 items-center text-xl font-bold mt-12">
         <PlusCircle />
         Add Resources (optional)
       </div>
@@ -60,12 +91,17 @@ const router = useRouter();
 
       <div className="mt-5 flex flex-col gap-5">
         {section.resources.map((resource) => (
-          <div key={resource.id} className="flex justify-between bg-[#FFF8EB] rounded-lg text-sm font-medium p-3">
+          <div
+            key={resource.id}
+            className="flex justify-between bg-[#FFF8EB] rounded-lg text-sm font-medium p-3"
+          >
             <div className="flex items-center">
               <File className="h-4 w-4 mr-4" />
               {resource.name}
             </div>
             <Button
+              className="cursor-pointer"
+              onClick={() => handleDelete(resource.id)}
               variant={"destructive"}
             >
               {isLoading ? (
@@ -115,7 +151,11 @@ const router = useRouter();
               )}
             />
 
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="cursor-pointer"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -126,7 +166,7 @@ const router = useRouter();
         </Form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ResourceForm
+export default ResourceForm;

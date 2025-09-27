@@ -61,7 +61,7 @@ const CreateSection = ({ course }: CreateSectionProps) => {
         values
       );
       router.push(
-        `/instructor/courses/${course.id}/sections/${response.data.id}"`
+        `/instructor/courses/${course.id}/sections/${response.data.id}`
       );
       toast("New Section created Successfully!");
     } catch (error) {
