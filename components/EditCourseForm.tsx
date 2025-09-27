@@ -320,7 +320,6 @@ const EditCourseForm = ({
                         page="Edit Course"
                         endpoint="courseBanner"
                         onChange={(url) => {
-                          // Fixed: properly handle the optional url parameter
                           if (url) {
                             field.onChange(url);
                           }
