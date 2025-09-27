@@ -7,7 +7,6 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 
-
 interface PublishButtonProps {
   disabled: boolean;
   courseId: string;
@@ -27,7 +26,27 @@ const PublishButton = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const onClick = async () => {
-   
+    let url = `api/course/${courseId}`;
+    if (page == "Section") {
+      url = url + `/sections/${sectionId}`;
+    }
+    try {
+      setIsLoading(true);
+      if (isPublished) {
+        await axios.post(`${url}/unpublish`);
+      } else {
+        await axios.post(`${url}/publish`);
+      }
+
+      toast.success(`${page} ${isPublished ? "unpublished" : "published"}`);
+      router.refresh();
+    } catch (error) {
+      toast("Internal Server Error!");
+      console.log(
+        `Failed to ${isPublished ? "unpublish" : "publish"} ${page}`,
+        error
+      );
+    }
   };
 
   return (
@@ -36,7 +55,13 @@ const PublishButton = ({
       disabled={disabled || isLoading}
       onClick={onClick}
     >
-      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : isPublished ? "Unpublish" : "Publish"}
+      {isLoading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isPublished ? (
+        "Unpublish"
+      ) : (
+        "Publish"
+      )}
     </Button>
   );
 };
