@@ -54,7 +54,22 @@ const CreateSection = ({ course }: CreateSectionProps) => {
   ];
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `/api/course/${course.id}/sections`,
+        values
+      );
+      router.push(
+        `/instructor/courses/${course.id}/sections/${response.data.id}"`
+      );
+      toast("New Section created Successfully!");
+    } catch (error) {
+      console.log(error);
+      toast("Internal server Error");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -72,7 +87,7 @@ const CreateSection = ({ course }: CreateSectionProps) => {
         ))}
       </div>
 
-      {/* Add Previous Section list */}
+      {/* TODO: Add Previous Section list */}
 
       <h1 className="font-extrabold text-xl mt-4  p-2">Add New Section</h1>
       <div className="p-2 mt-2">
@@ -103,7 +118,7 @@ const CreateSection = ({ course }: CreateSectionProps) => {
                   Cancel
                 </Button>
               </Link>
-              <Button className="cursor-pointer" variant={"primary"}>
+              <Button disabled={isLoading} className="cursor-pointer" variant={"primary"}>
                 {isLoading ? (
                   <Loader2 className="h-7 w-7 animate-spin" />
                 ) : (

@@ -11,7 +11,7 @@ const page = async ({ params }: { params: { courseId: string } }) => {
   if (!userId) {
     redirect("/sign-in");
   }
-  const { courseId } = params;
+  const { courseId } = await params;
 
   const course = await db.course.findUnique({
     where: {
