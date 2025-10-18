@@ -29,7 +29,9 @@ const groupByCourse = (purchases: PurchaseWithCourse[]) =>
     {}
   );
 
-export const getPerformance = async (userId: string): Promise<PerformanceResult> => {
+export const getPerformance = async (
+  userId: string
+): Promise<PerformanceResult> => {
   try {
     const purchases = await db.purchase.findMany({
       where: { course: { instructorId: userId } },

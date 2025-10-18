@@ -48,7 +48,9 @@ const Chart = ({ data }: { data: { name: string; total: number }[] }) => {
           />
           <Legend
             wrapperStyle={{ paddingTop: "20px" }}
-            payload={[{ value: "Total Revenue", type: "square", color: "#8b5cf6" }]}
+            payload={[
+              { value: "Total Revenue", type: "square", color: "#8b5cf6" },
+            ]}
           />
           <Bar
             dataKey="total"
