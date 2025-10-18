@@ -11,7 +11,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  
 }
 
 model Course {
@@ -35,8 +34,9 @@ model Course {
 
   sections Section[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+  Purchase  Purchase[]
 
   @@index([categoryId])
   @@index([subCategoryId])
@@ -115,6 +115,30 @@ model Resource {
   updatedAt DateTime @default(now())
 
   @@index([sectionId])
+}
+
+model Purchase {
+  id         String @id @default(uuid())
+  customerId String
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([customerId, courseId])
+  @@index([courseId])
+}
+
+
+model StripeCustomer {
+  id               String @id @default(uuid())
+  customerId       String @unique
+  stripeCustomerId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Progress {
